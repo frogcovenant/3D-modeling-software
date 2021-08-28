@@ -257,6 +257,8 @@ var g_colors = [];
 var grid_points = [];
 var grid_colors = [];
 var gridSize = 0.5;
+var surfaces = [];
+
 function click(ev, gl, canvas) {
   if(event.buttons == 1){
     var x = ev.clientX;
@@ -267,12 +269,25 @@ function click(ev, gl, canvas) {
     y = (canvas.height/2 - (y - rect.top))/(canvas.height/2);
 
     if(g_points.length <= index){
+      // create empty surface
+      var surface = {
+        s_points: [],
+        s_colors: [],
+        s_angles: [0,0,0],
+        s_translates: [0,0,0],
+        s_scales: [1,1,1]
+      };
+      surfaces.push(surface);
       var arrayPoints = [];
       g_points.push(arrayPoints);
       var arrayColors = [];
       g_colors.push(arrayColors);
     }
-
+    // fill in the empty surface
+    // points
+    surfaces[index].s_points.push(x);
+    surfaces[index].s_points.push(y);
+    
     g_points[index].push(x);
     g_points[index].push(y);
     var z = 0.0;
@@ -282,10 +297,15 @@ function click(ev, gl, canvas) {
       z = -1.0;
     }
     g_points[index].push(z);
+    surfaces[index].s_points.push(z);
 
     g_colors[index].push(Math.random());
     g_colors[index].push(Math.random());
     g_colors[index].push(Math.random());
+    // colors
+    surfaces[index].s_colors.push(Math.random());
+    surfaces[index].s_colors.push(Math.random());
+    surfaces[index].s_colors.push(Math.random());
 
     draw(gl);
   }
