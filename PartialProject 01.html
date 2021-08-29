@@ -46,21 +46,33 @@
               </ul>
             </td>
             <td>
+              <button id="delete" class="k-primary" onclick="deleteSurface()">Delete</button>
+            </td>
+            <td>
               <button id="restart" class="k-primary" onclick="restart()">Restart</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input type="color" id="colorPicker" class="k-primary" style="margin-left: 50px;">
+            </td>
+            <td>
+              <button id="colorBttn" class="k-primary" onclick="changeSurfaceColor()">change color</button>
             </td>
           </tr>
         </table>
         <ul id="fieldlist">
           <li>
             <label>Rotation</label>
-            <input type="range" style="width: 80%;" id="slider"/>
+            <input type="range" style="width: 80%;" id="slider_r"/>
           </li>
           <li>
-            <label>Rotation Range</label>
-            <div style="width: 80%;" id="rangeslider">
-              <input />
-              <input />
-            </div>
+            <label>Translation</label>
+            <input type="range" style="width: 80%;" id="slider_t"/>
+          </li>
+          <li>
+            <label>Scaling</label>
+            <input type="range" style="width: 80%;" id="slider_s"/>
           </li>
         </ul>
       </td>
@@ -114,6 +126,8 @@
   <script src="lib/webgl-debug.js"> </script>
   <script src="lib/cuon-utils.js"> </script>
   <script src="lib/cuon-matrix.js"> </script>
-  <script src="Partial Project 01.js"> </script>
+  <script src="PartialProject 01.js"> </script>
+  <script src="DrawFunctions.js"> </script>
+  <script src="UIController.js"> </script>
 </body>
 </html>
