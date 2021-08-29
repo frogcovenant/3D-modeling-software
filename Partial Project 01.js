@@ -25,21 +25,23 @@ var FSHADER_SOURCE =`
     if(xAxis.checked){
       kendoConsole.log("X");
       rotAxis = [1,0,0];
+      // try setting the current rotation angle for x
     }
     if(yAxis.checked){
       kendoConsole.log("Y");
       rotAxis = [0,1,0];
+      // try setting the current rotation angle for y
     }
     if(zAxis.checked){
       kendoConsole.log("Z");
       rotAxis = [0,0,1];
+      // try setting the current rotation angle for z
     }
   }
 
   function restart(){
     index = 0;
-    g_points = [];
-    g_colors = [];
+    surfaces = [];
     var table = document.getElementById("bttnssurface");
     table.innerHTML = "<tr><th style='width: 150px'></th></tr>";
     kendoConsole.log("Restart");
@@ -48,13 +50,28 @@ var FSHADER_SOURCE =`
 
   function sliderOnSlide(e) {
     kendoConsole.log("Slide :: new slide value is: " + e.value);
-    angle = e.value;
+    // set angle to its corresponding axis in the surface
+    if(rotAxis[0] == 1){
+      surfaces[currentSurfaceIndex].s_angles[0] = e.value;
+    }else if(rotAxis[1] == 1){
+      surfaces[currentSurfaceIndex].s_angles[1] = e.value;
+    }else if(rotAxis[2] == 1){
+      surfaces[currentSurfaceIndex].s_angles[2] = e.value;
+    }
+    
     main();
   }
 
   function sliderOnChange(e) {
     kendoConsole.log("Change :: new value is: " + e.value);
-    angle = e.value;
+    // set angle to its corresponding axis in the surface
+    if(rotAxis[0] == 1){
+      surfaces[currentSurfaceIndex].s_angles[0] = e.value;
+    }else if(rotAxis[1] == 1){
+      surfaces[currentSurfaceIndex].s_angles[1] = e.value;
+    }else if(rotAxis[2] == 1){
+      surfaces[currentSurfaceIndex].s_angles[2] = e.value;
+    }
     main();
   }
 
@@ -74,7 +91,14 @@ var FSHADER_SOURCE =`
       slider.value(e.value[1]);
     }
     slider.resize();
-    angle = slider.value();
+    // set angle to its corresponding axis in the surface
+    if(rotAxis[0] == 1){
+      surfaces[currentSurfaceIndex].s_angles[0] = slider.value;
+    }else if(rotAxis[1] == 1){
+      surfaces[currentSurfaceIndex].s_angles[1] = slider.value;
+    }else if(rotAxis[2] == 1){
+      surfaces[currentSurfaceIndex].s_angles[2] = slider.value;
+    }
     main();
   }
 
@@ -167,8 +191,15 @@ function drawGrid(gl){
     grid_colors.push(1);
     grid_colors.push(1);
   }
+  var gridSurface = {
+    s_points: grid_colors,
+    s_colors: grid_colors,
+    s_angles: [0,0,0],
+    s_translates: [0,0,0],
+    s_scales: [1,1,1]
+  };
   
-  var n = initVertexBuffers(gl, new Float32Array(grid_points), new Float32Array(grid_colors));
+  var n = initVertexBuffers(gl, new Float32Array(grid_points), new Float32Array(grid_colors), gridSurface);
   gl.drawArrays(gl.LINES, 0, n);
 }
 
@@ -185,7 +216,7 @@ function objectSelected(id){
   kendoConsole.log(id);
 }
 
-function initVertexBuffers(gl, vertices, colors){
+function initVertexBuffers(gl, vertices, colors, surface){
   var n = vertices.length/3;
   var vertexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -200,8 +231,16 @@ function initVertexBuffers(gl, vertices, colors){
   gl.enableVertexAttribArray(a_Position);
 
   var modelMatrix = new Matrix4();
-  // needs to rotate the selected figure
-  modelMatrix.setRotate(angle, rotAxis[0], rotAxis[1], rotAxis[2]);
+  // translates the surface
+  modelMatrix.setTranslate(surface.s_translates[0], surface.s_translates[1], surface.s_translates[2]);
+  
+  // rotates the surface in each axis
+  modelMatrix.rotate(surface.s_angles[0], 1, 0, 0);
+  modelMatrix.rotate(surface.s_angles[1], 0, 1, 0);
+  modelMatrix.rotate(surface.s_angles[2], 0, 0, 1);
+
+  // scales the surface
+  modelMatrix.scale(surface.s_scales[0], surface.s_scales[1], surface.s_scales[2]);
 
   var u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
   if(!u_ModelMatrix){ console.log('Failed to get location of u_ModelMatrix'); return;  }
@@ -242,8 +281,8 @@ function initVertexBuffers(gl, vertices, colors){
 function draw(gl){
   gl.clear(gl.COLOR_BUFFER_BIT);
   drawGrid(gl);
-  for(var i = 0; i < g_points.length; i++){
-    var n = initVertexBuffers(gl, new Float32Array(g_points[i]), new Float32Array(g_colors[i]));
+  for(var i = 0; i < surfaces.length; i++){
+    var n = initVertexBuffers(gl, new Float32Array(surfaces[i].s_points), new Float32Array(surfaces[i].s_colors), surfaces[i]);
     gl.drawArrays(gl.TRIANGLE_FAN, 0, n);
   }
 }
@@ -252,8 +291,6 @@ var index = 0;
 var currentSurfaceIndex = 0;
 var angle = 0.0;
 var rotAxis = [1,0,0];
-var g_points = [];
-var g_colors = [];
 var grid_points = [];
 var grid_colors = [];
 var gridSize = 0.5;
@@ -268,7 +305,7 @@ function click(ev, gl, canvas) {
     x = ((x - rect.left) - canvas.width/2)/(canvas.width/2);
     y = (canvas.height/2 - (y - rect.top))/(canvas.height/2);
 
-    if(g_points.length <= index){
+    if(surfaces.length <= index){
       // create empty surface
       var surface = {
         s_points: [],
@@ -278,30 +315,20 @@ function click(ev, gl, canvas) {
         s_scales: [1,1,1]
       };
       surfaces.push(surface);
-      var arrayPoints = [];
-      g_points.push(arrayPoints);
-      var arrayColors = [];
-      g_colors.push(arrayColors);
     }
     // fill in the empty surface
     // points
     surfaces[index].s_points.push(x);
     surfaces[index].s_points.push(y);
     
-    g_points[index].push(x);
-    g_points[index].push(y);
     var z = 0.0;
     if(ev.ctrlKey){
       z = -0.5;
     } else if(ev.shiftKey) {
       z = -1.0;
     }
-    g_points[index].push(z);
     surfaces[index].s_points.push(z);
 
-    g_colors[index].push(Math.random());
-    g_colors[index].push(Math.random());
-    g_colors[index].push(Math.random());
     // colors
     surfaces[index].s_colors.push(Math.random());
     surfaces[index].s_colors.push(Math.random());
