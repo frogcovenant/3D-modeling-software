@@ -131,24 +131,24 @@ function click(ev, gl, canvas) {
 
   
   function changeAxis() {
-    // currently changes are made globally
+    // selects the axis that will be affected by the desired operation
     var xAxis = document.getElementById("x-axis");
     var yAxis = document.getElementById("y-axis");
     var zAxis = document.getElementById("z-axis");
     if(xAxis.checked){
       kendoConsole.log("X");
       rotAxis = [1,0,0];
-      // try setting the current rotation angle for x
+      // the surface now can be translated, rotated and scaled in the x axis
     }
     if(yAxis.checked){
       kendoConsole.log("Y");
       rotAxis = [0,1,0];
-      // try setting the current rotation angle for y
+      // the surface now can be translated, rotated and scaled in the y axis
     }
     if(zAxis.checked){
       kendoConsole.log("Z");
       rotAxis = [0,0,1];
-      // try setting the current rotation angle for z
+      // the surface now can be translated, rotated and scaled in the y axis
     }
   }
   

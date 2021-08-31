@@ -1,4 +1,5 @@
 function draw(gl){
+  // draw is called whenever a change is made in the canvas
   gl.clear(gl.COLOR_BUFFER_BIT);
   drawGrid(gl);
   for(var i = 0; i < surfaces.length; i++){
@@ -10,6 +11,7 @@ function draw(gl){
 }
 
 function drawGrid(gl){
+  // a reference grid so that the user can guide themselves with it as they model
   // grid side x
   for(var x = -gridSize; x <= gridSize; x += 0.1){
     // points
@@ -65,6 +67,7 @@ function drawGrid(gl){
 }
 
 function initVertexBuffers(gl, vertices, colors, surface){
+  // each surface is sent to be transformed as desired by the user
   var n = vertices.length/3;
   var vertexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -80,6 +83,7 @@ function initVertexBuffers(gl, vertices, colors, surface){
 
   var modelMatrix = new Matrix4();
   // translates the surface
+  // set is called once
   modelMatrix.setTranslate(surface.s_translates[0], surface.s_translates[1], surface.s_translates[2]);
   
   // rotates the surface in each axis
@@ -103,7 +107,8 @@ function initVertexBuffers(gl, vertices, colors, surface){
   var u_ProjMatrix = gl.getUniformLocation(gl.program, 'u_ProjMatrix');
   if(!u_ProjMatrix){ console.log('Failed to get location of u_ProjMatrix'); return;  }
   var projMatrix = new Matrix4();
-  //projMatrix.setOrtho(-1.0,1.0,-1.0,1.0,1.0,2.0);
+  
+  // pespective is needed to make it easier for the user to see a 3D space and model
   projMatrix.setPerspective(60.0, 1.0, 0.1, 5.0);
   gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
 

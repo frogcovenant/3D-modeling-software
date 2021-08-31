@@ -36,12 +36,14 @@ var FSHADER_SOURCE =`
   }
 
   function changeSurfaceColor(){
+    // gets color values and makes them rgb values
     hexColor = document.getElementById("colorPicker").value;
     redColor = parseInt(hexColor.substring(1,2), 16)/15.0;
     greenColor = parseInt(hexColor.substring(3,4), 16)/15.0;
     blueColor = parseInt(hexColor.substring(5,6), 16)/15.0;
     console.log(redColor);
     surfaces[currentSurfaceIndex].s_colors = [];
+    // adds the color to each vertex point
     for(var i = 0; i < surfaces[currentSurfaceIndex].s_points.length / 3; i ++){
       surfaces[currentSurfaceIndex].s_colors.push(redColor);
       surfaces[currentSurfaceIndex].s_colors.push(greenColor);
@@ -110,7 +112,7 @@ function objectSelected(id){
   kendoConsole.log(id);
 }
 
-// Global variables
+// global variables
 var gl;
 var index = 0;
 var currentSurfaceIndex = 0;
